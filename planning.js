@@ -59,7 +59,7 @@ class aeroplane {
 
   constructor([type, costPerSeatPer100km, maxFlightRange, numEconomySeats, numBusinessSeats, numFirstClassSeats]) {
     this.#type = type;
-    this.#costPerSeatPer100km = costPerSeatPer100km;
+    this.#costPerSeatPer100km = Number(costPerSeatPer100km.slice(1));
     this.#maxFlightRange = maxFlightRange;
     this.#numEconomySeats = numEconomySeats;
     this.#numBusinessSeats = numBusinessSeats;
@@ -87,10 +87,12 @@ class aeroplane {
 
 // REFACTOR BY ITERATING THROUGH ARRAY
 // TEST EACH AEROPLANE/AIRPORT OBJECT RETURNS CORRECT ATTRIBUTES, PRIVATE TOO
+// COMMENTS FOR ATTRIBUTES OR METHODS
 
 // Read in data
 const airportData = readCsv('airports.csv');
 const aeroplaneData = readCsv('aeroplanes.csv');
+const flightData = readCsv('valid_flight_data.csv');
 
 // Instanstiate each airport object
 const airportJFK = new airport(airportData[0]);
@@ -100,6 +102,10 @@ const airportAMS = new airport(airportData[3]);
 const airportCAI = new airport(airportData[4]);
 
 // Instantiate each aeroplane object
-const medNarrowBody = new aeroplane(aeroplaneData[0])
-const lrgNarrowBody = new aeroplane(aeroplaneData[1])
-const medWideBody = new aeroplane(aeroplaneData[2])
+const medNarrowBody = new aeroplane(aeroplaneData[0]);
+const lrgNarrowBody = new aeroplane(aeroplaneData[1]);
+const medWideBody = new aeroplane(aeroplaneData[2]);
+
+// Testing
+
+console.log(lrgNarrowBody.costPerSeatPer100km + 123);
