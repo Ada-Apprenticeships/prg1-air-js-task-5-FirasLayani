@@ -32,7 +32,7 @@ function calculateProfit(flight) {
     flight.economyBooked * flight.economyPrice +
     flight.businessBooked * flight.businessPrice +
     flight.firstClassBooked * flight.firstClassPrice;
-  const numSeats = flight.economyBooked+flight.businessBooked+flight.firstClassBooked;
+  const numSeats = flight.economyBooked + flight.businessBooked + flight.firstClassBooked;
   //const flightCostPerSeat = flight.
   return income;
 }
@@ -98,6 +98,33 @@ class Aeroplane {
   }
   get numFirstClassSeats() {
     return this.#numFirstClassSeats;
+  }
+}
+
+// Class container for all aeroplane types
+class Aeroplanes {
+  #aeroplanes;
+  constructor() {
+    this.#aeroplanes = [];
+  }
+
+  add(aeroplane) {
+    this.#aeroplanes.push(aeroplane);
+    return this.#aeroplanes.length;
+  }
+
+  // remove aeroplane?
+  get quantity() {
+    return this.#aeroplanes.length;
+  }
+
+  list() {
+    return this.#aeroplanes;
+  }
+
+  // Return the aeroplane with the specified type name
+  search(aircraftType) {
+    return this.#aeroplanes.find(aeroplane => aeroplane.type === aircraftType);
   }
 }
 
@@ -194,6 +221,7 @@ class Flights {
 // VALIDATE FLIGHT INFO
 // Test for valid, edge and invalid cases
 // Validate flight before calculating
+// Container class where Aeroplanes, Airports and Aeroplanes extend?
 
 // Read in data
 const airportData = readCsv('airports.csv');
@@ -207,10 +235,11 @@ const airportMAD = new Airport(airportData[2]);
 const airportAMS = new Airport(airportData[3]);
 const airportCAI = new Airport(airportData[4]);
 
-// Instantiate each aeroplane object
-const medNarrowBody = new Aeroplane(aeroplaneData[0]);
-const lrgNarrowBody = new Aeroplane(aeroplaneData[1]);
-const medWideBody = new Aeroplane(aeroplaneData[2]);
+// Instantiate each aeroplane
+const aeroplanes = new Aeroplanes();
+aeroplaneData.forEach(aeroplane => {
+  aeroplanes.add(new Aeroplane(aeroplane));
+});
 
 // Instantiate each flight
 const flights = new Flights();
@@ -219,8 +248,9 @@ flightData.forEach(flight => {
 });
 
 // Testing
-console.log(flights.quantity);
+//console.log(flights.quantity);
 
 //console.log(lrgNarrowBody.costPerSeatPer100km + 123);
 
 console.log(calculateProfit(flights.list()[0]));
+console.log(aeroplanes.search('Large narrow body').costPerSeatPer100km);
