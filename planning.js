@@ -1,5 +1,4 @@
 const fs = require('fs');
-const { urlToHttpOptions } = require('url');
 
 function readCsv(filename, delimiter = ',') {
   try {
@@ -14,6 +13,11 @@ function readCsv(filename, delimiter = ',') {
         data.push(columns);
       }
     }
+
+    // Convert intended elements to numbers
+    data.forEach((row, rowIndex) => {
+      data[rowIndex] = row.map(element => element === '0' || Number(element) ? Number(element) : element);
+    });
 
     return data;
   } catch (err) {
@@ -39,7 +43,6 @@ function calculateProfit(flight) {
   const cost = flightCostPerSeat * numSeats;
   const profit = income - cost;
   return profit.toFixed(2);
-  //`Income is ${income}, cost is ${cost}, profit is ${profit}. flightCostPerSeat is ${flightCostPerSeat}. distance is ${airports.findDistance(flight.airportUK, flight.airportOverseas)}. Number of seats is ${numSeats}`;
 }
 
 // Class for airports and their information
@@ -252,15 +255,14 @@ class Flights {
 
 // *** To do Tasks ***
 
-// REFACTOR INSTANTIATION BY ITERATING THROUGH ARRAY
 // TEST EACH AEROPLANE/AIRPORT OBJECT RETURNS CORRECT ATTRIBUTES, PRIVATE TOO
 // COMMENTS FOR ATTRIBUTES OR METHODS
-// MAKE AIRPORTS AND AEROPLANES EXPANDABLE SO CAN BE ADDED IN CSV
 // VALIDATE FLIGHT INFO
 // Test for valid, edge and invalid cases
 // Validate flight before calculating
 // Container class where Aeroplanes, Airports and Aeroplanes extend?
 // Search function?
+// Check each csv field is an integerwhere necessary
 
 // Read in data
 const airportData = readCsv('airports.csv');
@@ -285,9 +287,22 @@ flightData.forEach(flight => {
   flights.add(new Flight(flight));
 });
 
+// Output all flight detials
+console.table(
+  // Create a table from an array of all flight objects, where each one has been mapped to a new flight object accessing the private attributes of the original 
+  flights.list().map(flight => ({
+    'UK Airport': flight.airportUK === 'MAN' ? 'Manchester' : 'Gatwick',
+    'Overseas Airport': airports.search(flight.airportOverseas).name,
+    'Aircraft Type': flight.aircraftType,
+    '# Economy Seats': flight.economyBooked,
+    '# Business Seats': flight.businessBooked,
+    '# First Class Seats': flight.firstClassBooked,
+    'Economy Seat Price': `£${flight.economyPrice}`,
+    'Business Seat Price': `£${flight.businessPrice}`,
+    'First Class Seat Price': `£${flight.firstClassPrice}`,
+    'Profit': `£${calculateProfit(flight)}`,
+  }))
+);
+
 // Testing
-//console.log(flights.quantity);
-
-//console.log(lrgNarrowBody.costPerSeatPer100km + 123);
-
-console.log(calculateProfit(flights.list()[0]));
+//console.log(calculateProfit(flights.list()[0]));
