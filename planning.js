@@ -73,20 +73,24 @@ function calculateProfit(flight) {
 
 // Output flight details to a file
 function outputToFile(flightData, outputFile) {
-  // Remove existing output file
-  if (fs.existsSync(outputFile)) {
-    fs.unlinkSync(outputFile);
-  }
-
-  // Append to output file
-  flightData.forEach((row, rowIndex) => {
-    if (rowIndex === 0) {
-      row.push('Profit');
-    } else {
-      row.push(calculateProfit(new Flight(row)));
+  try {
+    // Remove existing output file
+    if (fs.existsSync(outputFile)) {
+      fs.unlinkSync(outputFile);
     }
-    fs.appendFileSync(outputFile, `${row.join(',')}\n`);
-  });
+
+    // Append to output file
+    flightData.forEach((row, rowIndex) => {
+      if (rowIndex === 0) {
+        row.push('Profit');
+      } else {
+        row.push(calculateProfit(new Flight(row)));
+      }
+      fs.appendFileSync(outputFile, `${row.join(',')}\n`);
+    });
+  } catch (error) {
+    console.error(`Error: ${error.message}`);
+  }
 }
 
 // Class for airports and their information
