@@ -21,8 +21,16 @@ function readCsv(filename, delimiter = ',') {
   }
 }
 
+// Return whether a flight is valid
+function isValidFlight(flightInfo) {}
+
+// Calculate the profit of a flight
+function calculateProfit(flightInfo) {
+  const income = 0;
+}
+
 // Class for airports and their information
-class airport {
+class Airport {
   #code;
   #name;
   #distFromMAN;
@@ -49,7 +57,7 @@ class airport {
 }
 
 // Class for aeroplanes and their information
-class aeroplane {
+class Aeroplane {
   #type;
   #costPerSeatPer100km;
   #maxFlightRange;
@@ -85,9 +93,76 @@ class aeroplane {
   }
 }
 
-// REFACTOR BY ITERATING THROUGH ARRAY
+// Class for flight details
+class Flight {
+  #airportUK;
+  #airportOverseas;
+  #aircraftType;
+  #economyBooked;
+  #businessBooked;
+  #firstClassBooked;
+  #economyPrice;
+  #businessPrice;
+  #firstClassPrice;
+
+  constructor([
+    airportUK,
+    airportOverseas,
+    aircraftType,
+    economyBooked,
+    businessBooked,
+    firstClassBooked,
+    economyPrice,
+    businessPrice,
+    firstClassPrice,
+  ]) {
+    this.#airportUK = airportUK;
+    this.#airportOverseas = airportOverseas;
+    this.#aircraftType = aircraftType;
+    this.#economyBooked = economyBooked;
+    this.#businessBooked = businessBooked;
+    this.#firstClassBooked = firstClassBooked;
+    this.#economyPrice = economyPrice;
+    this.#businessPrice = businessPrice;
+    this.#firstClassPrice = firstClassPrice;
+  }
+  get airportUK(){
+    return this.#airportUK
+  }
+  get airportOverseas(){
+    return this.#airportOverseas
+  }
+  get aircraftType(){
+    return this.#aircraftType
+  }
+  get economyBooked(){
+    return this.#economyBooked
+  }
+  get businessBooked(){
+    return this.#businessBooked
+  }
+  get firstClassBooked(){
+    return this.#firstClassBooked
+  }
+  get economyPrice(){
+    return this.#economyPrice
+  }
+  get businessPrice(){
+    return this.#businessPrice
+  }
+  get firstClassPrice(){
+    return this.#firstClassPrice
+  }
+}
+
+// *** To do Tasks ***
+
+// REFACTOR INSTANTIATION BY ITERATING THROUGH ARRAY
 // TEST EACH AEROPLANE/AIRPORT OBJECT RETURNS CORRECT ATTRIBUTES, PRIVATE TOO
 // COMMENTS FOR ATTRIBUTES OR METHODS
+// MAKE AIRPORTS AND AEROPLANES EXPANDABLE SO CAN BE ADDED IN CSV
+// VALIDATE FLIGHT INFO
+// Test for valid, edge and invalid cases
 
 // Read in data
 const airportData = readCsv('airports.csv');
@@ -95,16 +170,16 @@ const aeroplaneData = readCsv('aeroplanes.csv');
 const flightData = readCsv('valid_flight_data.csv');
 
 // Instanstiate each airport object
-const airportJFK = new airport(airportData[0]);
-const airportORY = new airport(airportData[1]);
-const airportMAD = new airport(airportData[2]);
-const airportAMS = new airport(airportData[3]);
-const airportCAI = new airport(airportData[4]);
+const airportJFK = new Airport(airportData[0]);
+const airportORY = new Airport(airportData[1]);
+const airportMAD = new Airport(airportData[2]);
+const airportAMS = new Airport(airportData[3]);
+const airportCAI = new Airport(airportData[4]);
 
 // Instantiate each aeroplane object
-const medNarrowBody = new aeroplane(aeroplaneData[0]);
-const lrgNarrowBody = new aeroplane(aeroplaneData[1]);
-const medWideBody = new aeroplane(aeroplaneData[2]);
+const medNarrowBody = new Aeroplane(aeroplaneData[0]);
+const lrgNarrowBody = new Aeroplane(aeroplaneData[1]);
+const medWideBody = new Aeroplane(aeroplaneData[2]);
 
 // Testing
 
