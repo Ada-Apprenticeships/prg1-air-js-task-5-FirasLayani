@@ -33,16 +33,25 @@ function isValidFlight(flight) {
     // Extract variables from flight
     const { airportUK, airportOverseas, aircraftType, firstClassBooked, businessBooked, economyBooked } = flight;
 
-    // Validate distance and aircraft details
-    const distance = airports.findDistance(airportUK, airportOverseas);
-
     // Extract information about flight's aeroplane type
     const { maxFlightRange, numFirstClassSeats, numBusinessSeats, numEconomySeats } = aeroplanes.search(aircraftType);
 
+    // Validate distance and two airports exist (error handling in airports class)
+    const distance = airports.findDistance(airportUK, airportOverseas);
+
     // Check conditions and throw errors if invalid
+
+    // Check if flight distance is more than aircraft's max range
     if (distance > maxFlightRange) {
       throw new Error(`${aircraftType} doesn't have the range to fly to ${airportOverseas}`);
     }
+
+    // Check if any bookings are negative numbers
+    if (firstClassBooked < 0 || businessBooked < 0 || economyBooked < 0) {
+      throw new Error(`Cannot have a negative number of bookings`);
+    }
+
+    // Check if specific class bookings are more than the available seats
     if (firstClassBooked > numFirstClassSeats) {
       throw new Error(`${aircraftType} doesn't have enough first-class seats (${firstClassBooked} > ${numFirstClassSeats})`);
     }
@@ -53,9 +62,10 @@ function isValidFlight(flight) {
       throw new Error(`${aircraftType} doesn't have enough economy class seats (${economyBooked} > ${numEconomySeats})`);
     }
 
-    // Return true if all conditions are satisfied
+    // Return true if the flight passed all the tests
     return true;
   } catch (error) {
+    // Otherwise report the error
     console.error(`Error: ${error.message}`);
     return false;
   }
