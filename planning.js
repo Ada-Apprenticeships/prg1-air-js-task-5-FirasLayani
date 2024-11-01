@@ -1,4 +1,5 @@
 const fs = require('fs');
+const { urlToHttpOptions } = require('url');
 
 function readCsv(filename, delimiter = ',') {
   try {
@@ -25,8 +26,15 @@ function readCsv(filename, delimiter = ',') {
 function isValidFlight(flightInfo) {}
 
 // Calculate the profit of a flight
-function calculateProfit(flightInfo) {
-  const income = 0;
+function calculateProfit(flight) {
+  // Formula for income/profit?
+  const income =
+    flight.economyBooked * flight.economyPrice +
+    flight.businessBooked * flight.businessPrice +
+    flight.firstClassBooked * flight.firstClassPrice;
+  const numSeats = flight.economyBooked+flight.businessBooked+flight.firstClassBooked;
+  //const flightCostPerSeat = flight.
+  return income;
 }
 
 // Class for airports and their information
@@ -126,32 +134,54 @@ class Flight {
     this.#businessPrice = businessPrice;
     this.#firstClassPrice = firstClassPrice;
   }
-  get airportUK(){
-    return this.#airportUK
+  get airportUK() {
+    return this.#airportUK;
   }
-  get airportOverseas(){
-    return this.#airportOverseas
+  get airportOverseas() {
+    return this.#airportOverseas;
   }
-  get aircraftType(){
-    return this.#aircraftType
+  get aircraftType() {
+    return this.#aircraftType;
   }
-  get economyBooked(){
-    return this.#economyBooked
+  get economyBooked() {
+    return this.#economyBooked;
   }
-  get businessBooked(){
-    return this.#businessBooked
+  get businessBooked() {
+    return this.#businessBooked;
   }
-  get firstClassBooked(){
-    return this.#firstClassBooked
+  get firstClassBooked() {
+    return this.#firstClassBooked;
   }
-  get economyPrice(){
-    return this.#economyPrice
+  get economyPrice() {
+    return this.#economyPrice;
   }
-  get businessPrice(){
-    return this.#businessPrice
+  get businessPrice() {
+    return this.#businessPrice;
   }
-  get firstClassPrice(){
-    return this.#firstClassPrice
+  get firstClassPrice() {
+    return this.#firstClassPrice;
+  }
+}
+
+// Class container for all flights
+class Flights {
+  #flights;
+  constructor() {
+    this.#flights = [];
+  }
+
+  add(flight) {
+    this.#flights.push(flight);
+    return this.#flights.length;
+  }
+
+  // remove flight?
+  get quantity() {
+    return this.#flights.length;
+  }
+
+  list() {
+    return this.#flights;
   }
 }
 
@@ -163,6 +193,7 @@ class Flight {
 // MAKE AIRPORTS AND AEROPLANES EXPANDABLE SO CAN BE ADDED IN CSV
 // VALIDATE FLIGHT INFO
 // Test for valid, edge and invalid cases
+// Validate flight before calculating
 
 // Read in data
 const airportData = readCsv('airports.csv');
@@ -181,6 +212,15 @@ const medNarrowBody = new Aeroplane(aeroplaneData[0]);
 const lrgNarrowBody = new Aeroplane(aeroplaneData[1]);
 const medWideBody = new Aeroplane(aeroplaneData[2]);
 
-// Testing
+// Instantiate each flight
+const flights = new Flights();
+flightData.forEach(flight => {
+  flights.add(new Flight(flight));
+});
 
-console.log(lrgNarrowBody.costPerSeatPer100km + 123);
+// Testing
+console.log(flights.quantity);
+
+//console.log(lrgNarrowBody.costPerSeatPer100km + 123);
+
+console.log(calculateProfit(flights.list()[0]));
