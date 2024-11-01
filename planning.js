@@ -16,7 +16,7 @@ function readCsv(filename, delimiter = ',') {
 
     // Convert intended elements to numbers
     data.forEach((row, rowIndex) => {
-      data[rowIndex] = row.map(element => element === '0' || Number(element) ? Number(element) : element);
+      data[rowIndex] = row.map(element => (element === '0' || Number(element) ? Number(element) : element));
     });
 
     return data;
@@ -27,7 +27,31 @@ function readCsv(filename, delimiter = ',') {
 }
 
 // Return whether a flight is valid
-function isValidFlight(flightInfo) {}
+function isValidFlight(flight) {
+  const distance = airports.findDistance(flight.airportUK, flight.airportOverseas);
+  const aircraft = aeroplanes.search(flight.aircraftType);
+  const airportCodes = ['MAN', 'LGW', 'JFK', 'ORY', 'MAD', 'AMS', 'CAI'];
+  // Test each condition
+  // Invalid airport codes automatically error handled in findDistance() in Airports class
+
+  if (distance > aircraft.maxFlightRange) {
+    // Flight distance is further than aeroplane's max flight range
+    throw new Error(`${flight.aircraftType} doesn't have the range to fly to ${flight.airportOverseas}`);
+  } else if (flight.firstClassBooked > aircraft.numFirstClassSeats) {
+    // Not enough first-class seats
+    throw new Error(`${flight.aircraftType} doesn't have enough first-class seats`);
+  } else if (flight.businessBooked > aircraft.numBusinessSeats) {
+    // Not enough business seats
+    throw new Error(`${flight.aircraftType} doesn't have enough business class seets`);
+  } else if (flight.economyBooked > aircraft.numEconomySeats) {
+    // Not enough economy seats
+    throw new Error(`${flight.aircraftType} doesn't have enough economy class seets`);
+  }
+  {
+    airports.findDistance(flight.airportUK, flight.airportOverseas); // Check for invalid airport codes
+    return true;
+  }
+}
 
 // Calculate the profit of a flight
 function calculateProfit(flight) {
@@ -95,13 +119,24 @@ class Airports {
 
   // Return the aeroplane with the specified type name
   search(airportCode) {
-    return this.#airports.find(airport => airport.code === airportCode);
+    const airport = this.#airports.find(airport => airport.code === airportCode);
+    if (!airport) {
+      throw new Error(`Invalid airport code (${airportCode})`);
+    } else {
+      return airport;
+    }
   }
 
-  // add error handling
   // Return the distance between two UK and overseas airports
   findDistance(ukCode, overseasCode) {
-    return ukCode === 'MAN' ? this.search(overseasCode).distFromMAN : this.search(overseasCode).distFromLGW;
+    const overseasAirport = this.search(overseasCode);
+    if (!overseasAirport) {
+      throw new Error(`Invalid airport code (${overseasCode})`);
+    } else if (ukCode !== 'MAN' && ukCode !== 'LGW') {
+      throw new Error(`Invalid airport code (${ukCode})`);
+    } else {
+      return ukCode === 'MAN' ? overseasAirport.distFromMAN : overseasAirport.distFromLGW;
+    }
   }
 }
 
@@ -289,7 +324,7 @@ flightData.forEach(flight => {
 
 // Output all flight detials
 console.table(
-  // Create a table from an array of all flight objects, where each one has been mapped to a new flight object accessing the private attributes of the original 
+  // Create a table from an array of all flight objects, where each one has been mapped to a new flight object accessing the private attributes of the original
   flights.list().map(flight => ({
     'UK Airport': flight.airportUK === 'MAN' ? 'Manchester' : 'Gatwick',
     'Overseas Airport': airports.search(flight.airportOverseas).name,
@@ -305,4 +340,12 @@ console.table(
 );
 
 // Testing
-//console.log(calculateProfit(flights.list()[0]));
+const invalidFlightData = readCsv('invalid_flight_data.csv');
+
+const invalidFlights = new Flights();
+invalidFlightData.forEach(flight => {
+  invalidFlights.add(new Flight(flight));
+});
+
+console.log(isValidFlight(flights.list()[0]));
+console.log(isValidFlight(invalidFlights.list()[5]));
