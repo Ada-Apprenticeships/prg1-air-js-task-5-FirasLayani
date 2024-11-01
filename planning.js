@@ -29,43 +29,43 @@ function readCsv(filename, delimiter = ',') {
 // Return whether a flight is valid
 function isValidFlight(flight) {
   try {
-    // Validate distance between airports and ensure aircraft exists
-    const distance = airports.findDistance(flight.airportUK, flight.airportOverseas);
-    const aircraft = aeroplanes.search(flight.aircraftType);
+    // Extract variables from flight
+    const { airportUK, airportOverseas, aircraftType, firstClassBooked, businessBooked, economyBooked } = flight;
 
-    // Test each condition
-    // Invalid airport codes automatically error handled in Airports class methods
+    // Validate distance and aircraft details
+    const distance = airports.findDistance(airportUK, airportOverseas);
 
-    if (distance > aircraft.maxFlightRange) {
-      // Check if flight distance is further than aeroplane's max flight range
-      throw new Error(`${flight.aircraftType} doesn't have the range to fly to ${flight.airportOverseas}`);
-      // Check if there are not enough seats
-    } else if (flight.firstClassBooked > aircraft.numFirstClassSeats) {
-      throw new Error(`${flight.aircraftType} doesn't have enough first-class seats`);
-    } else if (flight.businessBooked > aircraft.numBusinessSeats) {
-      throw new Error(`${flight.aircraftType} doesn't have enough business class seats`);
-    } else if (flight.economyBooked > aircraft.numEconomySeats) {
-      throw new Error(`${flight.aircraftType} doesn't have enough economy class seats`);
-    } else {
-      return true;
+    // Extract information about flight's aeroplane type
+    const { maxFlightRange, numFirstClassSeats, numBusinessSeats, numEconomySeats } = aeroplanes.search(aircraftType);
+
+    // Check conditions and throw errors if invalid
+    if (distance > maxFlightRange) {
+      throw new Error(`${aircraftType} doesn't have the range to fly to ${airportOverseas}`);
     }
+    if (firstClassBooked > numFirstClassSeats) {
+      throw new Error(`${aircraftType} doesn't have enough first-class seats (${firstClassBooked} > ${numFirstClassSeats})`);
+    }
+    if (businessBooked > numBusinessSeats) {
+      throw new Error(`${aircraftType} doesn't have enough business class seats`);
+    }
+    if (economyBooked > numEconomySeats) {
+      throw new Error(`${aircraftType} doesn't have enough economy class seats`);
+    }
+
+    // Return true if all conditions are satisfied
+    return true;
   } catch (error) {
-    console.log(`Error: ${error.message}`);
-    return false
+    console.error(`Error: ${error.message}`);
+    return false;
   }
 }
 
 // Calculate the profit of a flight
 function calculateProfit(flight) {
-  const income =
-    flight.economyBooked * flight.economyPrice +
-    flight.businessBooked * flight.businessPrice +
-    flight.firstClassBooked * flight.firstClassPrice;
+  const income = flight.economyBooked * flight.economyPrice + flight.businessBooked * flight.businessPrice + flight.firstClassBooked * flight.firstClassPrice;
   const numSeats = Number(flight.economyBooked) + Number(flight.businessBooked) + Number(flight.firstClassBooked);
   const flightCostPerSeat =
-    (aeroplanes.search(flight.aircraftType).costPerSeatPer100km *
-      airports.findDistance(flight.airportUK, flight.airportOverseas)) /
-    100;
+    (aeroplanes.search(flight.aircraftType).costPerSeatPer100km * airports.findDistance(flight.airportUK, flight.airportOverseas)) / 100;
   const cost = flightCostPerSeat * numSeats;
   const profit = income - cost;
   return profit.toFixed(2);
@@ -202,7 +202,12 @@ class Aeroplanes {
 
   // Return the aeroplane with the specified type name
   search(aircraftType) {
-    return this.#aeroplanes.find(aeroplane => aeroplane.type === aircraftType);
+    const aeroplane = this.#aeroplanes.find(aeroplane => aeroplane.type === aircraftType);
+    if (!aeroplane) {
+      throw new Error(`Invalid aeroplane type (${aircraftType})`);
+    } else {
+      return aeroplane;
+    }
   }
 }
 
@@ -218,17 +223,7 @@ class Flight {
   #businessPrice;
   #firstClassPrice;
 
-  constructor([
-    airportUK,
-    airportOverseas,
-    aircraftType,
-    economyBooked,
-    businessBooked,
-    firstClassBooked,
-    economyPrice,
-    businessPrice,
-    firstClassPrice,
-  ]) {
+  constructor([airportUK, airportOverseas, aircraftType, economyBooked, businessBooked, firstClassBooked, economyPrice, businessPrice, firstClassPrice]) {
     this.#airportUK = airportUK;
     this.#airportOverseas = airportOverseas;
     this.#aircraftType = aircraftType;
@@ -294,12 +289,9 @@ class Flights {
 
 // TEST EACH AEROPLANE/AIRPORT OBJECT RETURNS CORRECT ATTRIBUTES, PRIVATE TOO
 // COMMENTS FOR ATTRIBUTES OR METHODS
-// VALIDATE FLIGHT INFO
 // Test for valid, edge and invalid cases
-// Validate flight before calculating
 // Container class where Aeroplanes, Airports and Aeroplanes extend?
 // Search function?
-// Check each csv field is an integerwhere necessary
 
 // Read in data
 const airportData = readCsv('airports.csv');
@@ -324,7 +316,39 @@ flightData.forEach(flight => {
   flights.add(new Flight(flight));
 });
 
+// Check if all flights are valid
+let allValid = true;
+flights.list().forEach(flight => {
+  // Iterate through each flight and check if it is valid
+  let valid = isValidFlight(flight);
+  if (!valid) {
+    allValid = false;
+  }
+});
+
+// If all flights are valid
+if (allValid) {
+  // Output all flight details
+  console.table(
+    // Create a table from an array of all flight objects, where each one has been mapped to a new flight object accessing the private attributes of the original
+    flights.list().map(flight => ({
+      'UK Airport': flight.airportUK === 'MAN' ? 'Manchester' : 'Gatwick',
+      'Overseas Airport': airports.search(flight.airportOverseas).name,
+      'Aircraft Type': flight.aircraftType,
+      '# Economy Seats': flight.economyBooked,
+      '# Business Seats': flight.businessBooked,
+      '# First Class Seats': flight.firstClassBooked,
+      'Economy Seat Price': `£${flight.economyPrice}`,
+      'Business Seat Price': `£${flight.businessPrice}`,
+      'First Class Seat Price': `£${flight.firstClassPrice}`,
+      'Profit': `£${calculateProfit(flight)}`,
+    }))
+  );
+}
+
 // Testing
+
+/*
 const invalidFlightData = readCsv('invalid_flight_data.csv');
 
 const invalidFlights = new Flights();
@@ -332,14 +356,19 @@ invalidFlightData.forEach(flight => {
   invalidFlights.add(new Flight(flight));
 });
 
-//console.log(isValidFlight(flights.list()[0]));
-//console.log(isValidFlight(invalidFlights.list()[8]));
-
+// Check if all flights are valid
+let allValid = true;
 invalidFlights.list().forEach(flight => {
-  isValidFlight(flight);
+  // Iterate through each flight and check if it is valid
+  let valid = isValidFlight(flight);
+  if (!valid) {
+    allValid = false;
+  }
 });
 
-// Output all flight details
+// If all flights are valid
+if (allValid) {
+  // Output all flight details
 console.table(
   // Create a table from an array of all flight objects, where each one has been mapped to a new flight object accessing the private attributes of the original
   invalidFlights.list().map(flight => ({
@@ -355,3 +384,5 @@ console.table(
     'Profit': `£${calculateProfit(flight)}`,
   }))
 );
+}
+*/
