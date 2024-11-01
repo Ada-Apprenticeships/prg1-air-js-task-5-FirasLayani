@@ -93,6 +93,23 @@ function outputToFile(flightData, outputFile) {
   }
 }
 
+// Class for containers, i.e. to hold airports, aeroplanes, and flights
+class Container {
+  #list
+  constructor(){
+    this.#list = []
+  }
+
+  add(item) {
+    this.#list.push(item);
+    return this.#list.length;
+  }
+
+  list() {
+    return this.#list;
+  }
+}
+
 // Class for airports and their information
 class Airport {
   #code;
@@ -121,25 +138,10 @@ class Airport {
 }
 
 // Class container for all airports
-class Airports {
-  #airports;
-  constructor() {
-    this.#airports = [];
-  }
-
-  // Add an airport to the list of airports
-  add(airport) {
-    this.#airports.push(airport);
-    return this.#airports.length;
-  }
-
-  list() {
-    return this.#airports;
-  }
-
-  // Return the aeroplane with the specified type name
+class Airports extends Container{
+  // Return the airport with the specified type name
   search(airportCode) {
-    const airport = this.#airports.find(airport => airport.code === airportCode);
+    const airport = this.list().find(airport => airport.code === airportCode);
     if (!airport) {
       throw new Error(`Invalid airport code (${airportCode})`);
     } else {
@@ -198,24 +200,10 @@ class Aeroplane {
 }
 
 // Class container for all aeroplane types
-class Aeroplanes {
-  #aeroplanes;
-  constructor() {
-    this.#aeroplanes = [];
-  }
-
-  add(aeroplane) {
-    this.#aeroplanes.push(aeroplane);
-    return this.#aeroplanes.length;
-  }
-
-  list() {
-    return this.#aeroplanes;
-  }
-
+class Aeroplanes extends Container{
   // Return the aeroplane with the specified type name
   search(aircraftType) {
-    const aeroplane = this.#aeroplanes.find(aeroplane => aeroplane.type === aircraftType);
+    const aeroplane = this.list().find(aeroplane => aeroplane.type === aircraftType);
     if (!aeroplane) {
       throw new Error(`Invalid aeroplane type (${aircraftType})`);
     } else {
@@ -276,23 +264,6 @@ class Flight {
   }
 }
 
-// Class container for all flights
-class Flights {
-  #flights;
-  constructor() {
-    this.#flights = [];
-  }
-
-  add(flight) {
-    this.#flights.push(flight);
-    return this.#flights.length;
-  }
-
-  list() {
-    return this.#flights;
-  }
-}
-
 // Read in data
 const airportData = readCsv('airports.csv').slice(1);
 const aeroplaneData = readCsv('aeroplanes.csv').slice(1);
@@ -310,8 +281,8 @@ aeroplaneData.forEach(aeroplane => {
   aeroplanes.add(new Aeroplane(aeroplane));
 });
 
-// Instantiate each flight
-const flights = new Flights();
+// Instantiate each flight and store them in a Flights container
+const flights = new Container();
 flightData.forEach(flight => {
   flights.add(new Flight(flight));
 });
