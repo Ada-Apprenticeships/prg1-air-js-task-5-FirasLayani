@@ -33,8 +33,10 @@ function calculateProfit(flight) {
     flight.businessBooked * flight.businessPrice +
     flight.firstClassBooked * flight.firstClassPrice;
   const numSeats = flight.economyBooked + flight.businessBooked + flight.firstClassBooked;
-  //const flightCostPerSeat = flight.
-  return income;
+  //const flightCostPerSeat = aeroplanes.search(flight.aircraftType).costPerSeatPer100km * ;
+  const cost = flightCostPerSeat * numSeats;
+  const profit = income - cost;
+  return profit;
 }
 
 // Class for airports and their information
@@ -61,6 +63,33 @@ class Airport {
   }
   get distFromLGW() {
     return this.#distFromLGW;
+  }
+}
+
+// Class container for all airports
+class Airports {
+  #airports;
+  constructor() {
+    this.#airports = [];
+  }
+
+  add(airport) {
+    this.#airports.push(airport);
+    return this.#airports.length;
+  }
+
+  // remove aeroplane?
+  get quantity() {
+    return this.#airports.length;
+  }
+
+  list() {
+    return this.#airports;
+  }
+
+  // Return the aeroplane with the specified type name
+  search(airportCode) {
+    return this.#airports.find(airport => airport.code === airportCode);
   }
 }
 
@@ -222,6 +251,7 @@ class Flights {
 // Test for valid, edge and invalid cases
 // Validate flight before calculating
 // Container class where Aeroplanes, Airports and Aeroplanes extend?
+// Search function?
 
 // Read in data
 const airportData = readCsv('airports.csv');
@@ -229,11 +259,10 @@ const aeroplaneData = readCsv('aeroplanes.csv');
 const flightData = readCsv('valid_flight_data.csv');
 
 // Instanstiate each airport object
-const airportJFK = new Airport(airportData[0]);
-const airportORY = new Airport(airportData[1]);
-const airportMAD = new Airport(airportData[2]);
-const airportAMS = new Airport(airportData[3]);
-const airportCAI = new Airport(airportData[4]);
+const airports = new Airports();
+airportData.forEach(airport => {
+  airports.add(new Airport(airport));
+});
 
 // Instantiate each aeroplane
 const aeroplanes = new Aeroplanes();
