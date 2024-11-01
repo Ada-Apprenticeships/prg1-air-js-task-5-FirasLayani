@@ -1,0 +1,6 @@
+UK airport,Overseas airport,Type of aircraft,Number of economy seats booked,Number of business seats booked,Number of first class seats booked,Price of a economy class seat,Price of a business class seat,Price of a first class seat,Profit
+MAN,JFK,Medium narrow body,150,12,2,399,999,1899  # Error: Medium narrow body doesn't have the range to fly to JFK,NaN
+LGW,ORY,Large narrow body,200,25,5,450,1200,2500 # Error: Large narrow body doesn't have the range to fly to ORY,NaN
+MAN,MAD,Medium narrow body,120,8,2,350,850,1200  # Error: Medium narrow body doesn't have first-class seats,NaN
+LGW,AMS,Medium narrow body,180,12,0,120,400,0  # Error: Too many economy seats booked (180 > 160),NaN
+MAN,CAI,Large narrow body,160,25,3,450,1100,2000 # Error: Too many business seats booked (25 > 20),NaN

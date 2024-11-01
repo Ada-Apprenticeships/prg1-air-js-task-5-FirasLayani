@@ -1,12 +1,13 @@
 const fs = require('fs');
 
+// Read in a CSV file and convert strings to numbers where possible
 function readCsv(filename, delimiter = ',') {
   try {
     const fileContent = fs.readFileSync(filename, { encoding: 'utf-8' });
     const rows = fileContent.split('\n');
     const data = [];
 
-    for (let i = 1; i < rows.length; i++) {
+    for (let i = 0; i < rows.length; i++) {
       const row = rows[i].trim();
       if (row) {
         const columns = row.split(delimiter);
@@ -70,6 +71,24 @@ function calculateProfit(flight) {
   return (income - cost).toFixed(2);
 }
 
+// Output flight details to a file
+function outputToFile(flightData, outputFile) {
+  // Remove existing output file
+  if (fs.existsSync(outputFile)) {
+    fs.unlinkSync(outputFile);
+  }
+
+  // Append to output file
+  flightData.forEach((row, rowIndex) => {
+    if (rowIndex === 0) {
+      row.push('Profit');
+    } else {
+      row.push(calculateProfit(new Flight(row)));
+    }
+    fs.appendFileSync(outputFile, `${row.join(',')}\n`);
+  });
+}
+
 // Class for airports and their information
 class Airport {
   #code;
@@ -104,13 +123,9 @@ class Airports {
     this.#airports = [];
   }
 
+  // Add an airport to the list of airports
   add(airport) {
     this.#airports.push(airport);
-    return this.#airports.length;
-  }
-
-  // remove aeroplane?
-  get quantity() {
     return this.#airports.length;
   }
 
@@ -187,11 +202,6 @@ class Aeroplanes {
 
   add(aeroplane) {
     this.#aeroplanes.push(aeroplane);
-    return this.#aeroplanes.length;
-  }
-
-  // remove aeroplane?
-  get quantity() {
     return this.#aeroplanes.length;
   }
 
@@ -274,28 +284,15 @@ class Flights {
     return this.#flights.length;
   }
 
-  // remove flight?
-  get quantity() {
-    return this.#flights.length;
-  }
-
   list() {
     return this.#flights;
   }
 }
 
-// *** To do Tasks ***
-
-// TEST EACH AEROPLANE/AIRPORT OBJECT RETURNS CORRECT ATTRIBUTES, PRIVATE TOO
-// COMMENTS FOR ATTRIBUTES OR METHODS
-// Test for valid, edge and invalid cases
-// Container class where Aeroplanes, Airports and Aeroplanes extend?
-// Search function?
-
 // Read in data
-const airportData = readCsv('airports.csv');
-const aeroplaneData = readCsv('aeroplanes.csv');
-const flightData = readCsv('valid_flight_data.csv');
+const airportData = readCsv('airports.csv').slice(1);
+const aeroplaneData = readCsv('aeroplanes.csv').slice(1);
+const flightData = readCsv('valid_flight_data.csv').slice(1);
 
 // Instanstiate each airport
 const airports = new Airports();
@@ -344,6 +341,9 @@ if (allValid) {
   );
 }
 
+// Write flight details and profit to output file
+outputToFile(flightData, './flights_with_profits.csv');
+
 // Testing
 /*
 
@@ -355,17 +355,17 @@ invalidFlightData.forEach(flight => {
 });
 
 // Check if all flights are valid
-let allValid = true;
+let allValid2 = true;
 invalidFlights.list().forEach(flight => {
   // Iterate through each flight and check if it is valid
   let valid = isValidFlight(flight);
   if (!valid) {
-    allValid = false;
+    allValid2 = false;
   }
 });
 
 // If all flights are valid
-if (allValid) {
+if (allValid2) {
   // Output all flight details
 console.table(
   // Create a table from an array of all flight objects, where each one has been mapped to a new flight object accessing the private attributes of the original
