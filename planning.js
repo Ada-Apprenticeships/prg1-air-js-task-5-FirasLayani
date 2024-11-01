@@ -46,10 +46,10 @@ function isValidFlight(flight) {
       throw new Error(`${aircraftType} doesn't have enough first-class seats (${firstClassBooked} > ${numFirstClassSeats})`);
     }
     if (businessBooked > numBusinessSeats) {
-      throw new Error(`${aircraftType} doesn't have enough business class seats`);
+      throw new Error(`${aircraftType} doesn't have enough business class seats (${businessBooked} > ${numBusinessSeats})`);
     }
     if (economyBooked > numEconomySeats) {
-      throw new Error(`${aircraftType} doesn't have enough economy class seats`);
+      throw new Error(`${aircraftType} doesn't have enough economy class seats (${economyBooked} > ${numEconomySeats})`);
     }
 
     // Return true if all conditions are satisfied
@@ -63,12 +63,11 @@ function isValidFlight(flight) {
 // Calculate the profit of a flight
 function calculateProfit(flight) {
   const income = flight.economyBooked * flight.economyPrice + flight.businessBooked * flight.businessPrice + flight.firstClassBooked * flight.firstClassPrice;
-  const numSeats = Number(flight.economyBooked) + Number(flight.businessBooked) + Number(flight.firstClassBooked);
+  const numSeats = flight.economyBooked + flight.businessBooked + flight.firstClassBooked;
   const flightCostPerSeat =
     (aeroplanes.search(flight.aircraftType).costPerSeatPer100km * airports.findDistance(flight.airportUK, flight.airportOverseas)) / 100;
   const cost = flightCostPerSeat * numSeats;
-  const profit = income - cost;
-  return profit.toFixed(2);
+  return (income - cost).toFixed(2);
 }
 
 // Class for airports and their information
@@ -326,11 +325,10 @@ flights.list().forEach(flight => {
   }
 });
 
-// If all flights are valid
+// Output flight details if all flights are valid
 if (allValid) {
-  // Output all flight details
+  // Create a table from an array of all flight objects, where each one has been mapped to a new flight object accessing the private attributes of the original
   console.table(
-    // Create a table from an array of all flight objects, where each one has been mapped to a new flight object accessing the private attributes of the original
     flights.list().map(flight => ({
       'UK Airport': flight.airportUK === 'MAN' ? 'Manchester' : 'Gatwick',
       'Overseas Airport': airports.search(flight.airportOverseas).name,
@@ -347,8 +345,8 @@ if (allValid) {
 }
 
 // Testing
-
 /*
+
 const invalidFlightData = readCsv('invalid_flight_data.csv');
 
 const invalidFlights = new Flights();
